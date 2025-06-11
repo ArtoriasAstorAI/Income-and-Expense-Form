@@ -1,12 +1,27 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Income & Expense Tracker</title>
+</head>
+<body>
+  <h1>Daily Report</h1>
+
+  <div id="formContainer">
+    <button onclick="addIncome()">Add Income</button>
+    <button onclick="addExpense()">Add Expense</button>
+    <button onclick="submitData()">Submit</button>
+  </div>
+
+  <script>
     const formContainer = document.getElementById('formContainer');
     const entries = [];
-  
+
     function formatTodayDate() {
       const today = new Date();
       return today.toISOString().split("T")[0];
     }
-  
+
     function addIncome() {
       const div = document.createElement('div');
       div.innerHTML = `
@@ -20,7 +35,7 @@
       formContainer.insertBefore(div, formContainer.lastElementChild);
       div.classList.add('incomeEntry');
     }
-  
+
     function addExpense() {
       const div = document.createElement('div');
       div.innerHTML = `
@@ -32,10 +47,10 @@
       formContainer.insertBefore(div, formContainer.lastElementChild);
       div.classList.add('expenseEntry');
     }
-  
+
     async function submitData() {
       entries.length = 0;
-  
+
       document.querySelectorAll('.incomeEntry').forEach(entry => {
         entries.push({
           type: "Income",
@@ -46,7 +61,7 @@
           description: entry.querySelector('.description').value
         });
       });
-  
+
       document.querySelectorAll('.expenseEntry').forEach(entry => {
         entries.push({
           type: "Expense",
@@ -55,16 +70,16 @@
           cost: entry.querySelector('.cost').value
         });
       });
-  
-      const url = "https://script.google.com/macros/s/AKfycbzfMl-L2fIseWj6YdUoBfBJsUJ7Tud1UhsWsx9YECT2tlus_nsIjk-JtOx6yqFWqCre/exec"; // replace with your URL
-  
+
+      const url = "https://script.google.com/macros/s/AKfycbzfMl-L2fIseWj6YdUoBfBJsUJ7Tud1UhsWsx9YECT2tlus_nsIjk-JtOx6yqFWqCre/exec";
+
       try {
         const res = await fetch(url, {
           method: "POST",
           body: JSON.stringify({ entries }),
           headers: { "Content-Type": "application/json" }
         });
-  
+
         if (res.ok) {
           alert("Data submitted successfully!");
           location.reload();
@@ -76,3 +91,5 @@
       }
     }
   </script>
+</body>
+</html>
