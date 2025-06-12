@@ -16,31 +16,102 @@ function showExpenseForm() {
     document.getElementById('submitButton').style.display = 'block';
 }
 
+function addCarSection() {
+    const container = document.getElementById('carsContainer');
+    const carSection = document.createElement('div');
+    carSection.className = 'car-section';
+    
+    const carId = container.children.length + 1;
+    
+    carSection.innerHTML = `
+        <div class="car-header">
+            <h3>Car ${carId}</h3>
+            <button class="remove-car-btn" onclick="removeCarSection(this)">×</button>
+        </div>
+        <div class="form-group">
+            <label for="service${carId}">Service Type:</label>
+            <select id="service${carId}" name="service${carId}" required>
+                <option value="">Select Service</option>
+                <option value="Exterior">Exterior</option>
+                <option value="Interior">Interior</option>
+                <option value="Both">Both</option>
+                <option value="Ceramic">Ceramic</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="price${carId}">Price:</label>
+            <input type="number" id="price${carId}" name="price${carId}" step="0.01" required oninput="updateCalculatedFields()">
+        </div>
+    `;
+    
+    container.appendChild(carSection);
+    updateCalculatedFields();
+}
+
+function removeCarSection(button) {
+    const carSection = button.parentElement.parentElement;
+    carSection.remove();
+    updateCalculatedFields();
+}
+
+function updateCalculatedFields() {
+    const carsContainer = document.getElementById('carsContainer');
+    const carSections = carsContainer.children;
+    let totalAmount = 0;
+    
+    // Calculate total amount from all car prices
+    for (let section of carSections) {
+        const price = section.querySelector('input[type="number"]').value;
+        totalAmount += parseFloat(price) || 0;
+    }
+    
+    // Update the calculated fields
+    document.getElementById('numCars').textContent = carSections.length;
+    document.getElementById('totalAmount').textContent = `$${totalAmount.toFixed(2)}`;
+}
+
 function submitForm() {
     const date = document.getElementById('date').value;
     const submissions = document.getElementById('submissions');
-    const formData = new FormData();
     
-    // Get form data based on which form is active
     if (document.getElementById('incomeForm').classList.contains('active')) {
         const client = document.getElementById('client').value;
-        const cars = document.getElementById('cars').value;
-        const amount = document.getElementById('amount').value;
-        const service = document.getElementById('service').value;
+        const carsContainer = document.getElementById('carsContainer');
+        const carSections = carsContainer.children;
+        let totalAmount = 0;
         
         // Create JSON object
         const incomeData = {
             "date": date,
             "client": client,
-            "cars": cars,
-            "amount": amount,
-            "service": service
+            "cars": [],
+            "number_of_cars": carSections.length,
+            "total_amount": totalAmount.toFixed(2)
         };
+        
+        // Collect data from each car section
+        for (let section of carSections) {
+            const carId = section.children[0].children[0].textContent.split(' ')[1];
+            const service = section.querySelector(`#service${carId}`).value;
+            const price = section.querySelector(`#price${carId}`).value;
+            
+            incomeData.cars.push({
+                "car_number": carId,
+                "service": service,
+                "price": price
+            });
+            
+            totalAmount += parseFloat(price) || 0;
+        }
         
         // Create display element
         const incomeDisplay = document.createElement('div');
         incomeDisplay.className = 'submission income-submission';
-        incomeDisplay.textContent = `Client: ${client} - Cars: ${cars} - Amount: $${amount} - Service: ${service}`;
+        incomeDisplay.innerHTML = `
+            <div>Client: ${client}</div>
+            <div>Total Amount: $${totalAmount.toFixed(2)}</div>
+            <div>Cars: ${incomeData.cars.length}</div>
+        `;
         submissions.insertBefore(incomeDisplay, submissions.firstChild);
         
         // Send to webhook
@@ -64,6 +135,14 @@ function submitForm() {
         
         // Send to webhook
         sendToWebhook(expenseData);
+        
+        // Clear form fields
+        document.getElementById('client').value = '';
+        document.getElementById('numCars').textContent = '0';
+        document.getElementById('totalAmount').textContent = '$0.00';
+        document.getElementById('carsContainer').innerHTML = '';
+        document.getElementById('title').value = '';
+        document.getElementById('expenseAmount').value = '';
     }
 }
 
@@ -80,3 +159,4 @@ function sendToWebhook(data) {
     //     body: JSON.stringify(data)
     // });
 }
+
