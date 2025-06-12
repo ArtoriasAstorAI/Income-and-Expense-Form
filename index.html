@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income & Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Income & Expense Tracker</h1>
+        
+        <div class="button-container">
+            <button id="incomeBtn" class="action-btn">Add Income</button>
+            <button id="expenseBtn" class="action-btn">Add Expense</button>
+        </div>
+
+        <div id="formContainer">
+            <form id="incomeForm" class="form-group" style="display: none;">
+                <h3>Add Income Entry</h3>
+                <input type="text" name="clientName" placeholder="Client Name" required>
+                <input type="number" name="numCars" placeholder="Number of Cars" required>
+                <input type="number" name="incomeAmount" placeholder="Amount" required>
+                <textarea name="incomeDescription" placeholder="Description" required></textarea>
+                <button type="submit" class="submit-btn">Submit Income</button>
+            </form>
+
+            <form id="expenseForm" class="form-group" style="display: none;">
+                <h3>Add Expense Entry</h3>
+                <input type="text" name="expenseTitle" placeholder="Title" required>
+                <input type="number" name="expenseAmount" placeholder="Amount" required>
+                <button type="submit" class="submit-btn">Submit Expense</button>
+            </form>
+        </div>
+
+        <div id="entriesContainer" class="entries-container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
