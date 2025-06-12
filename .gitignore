@@ -1,7 +1,0 @@
-.env
-credentials.json
-token.json
-__pycache__/
-*.pyc
-.env.local
-.env.*.local
