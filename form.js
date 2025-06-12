@@ -151,12 +151,12 @@ function sendToWebhook(data) {
     // The actual webhook URL will be configured in n8n
     console.log('Form data submitted:', data);
     // In a real implementation, this would make an HTTP POST request to your webhook URL
-    // fetch(webhookUrl, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(data)
-    // });
+     fetch("https://artorias.app.n8n.cloud/webhook-test/daily-detailing-form", {
+         method: 'POST',
+         headers: {
+             'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(data)
+     });
 }
 
