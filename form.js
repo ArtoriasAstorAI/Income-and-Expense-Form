@@ -80,10 +80,17 @@ function submitForm() {
         const carSections = carsContainer.children;
         let totalAmount = 0;
         
+        // Calculate total amount first
+        for (let section of carSections) {
+            const price = section.querySelector('input[type="number"]').value;
+            totalAmount += parseFloat(price) || 0;
+        }
+
         // Create JSON object
         const incomeData = {
             "date": date,
             "client": client,
+            "type": "income",
             "cars": [],
             "number_of_cars": carSections.length,
             "total_amount": totalAmount.toFixed(2)
@@ -100,8 +107,6 @@ function submitForm() {
                 "service": service,
                 "price": price
             });
-            
-            totalAmount += parseFloat(price) || 0;
         }
         
         // Create display element
@@ -123,6 +128,7 @@ function submitForm() {
         // Create JSON object
         const expenseData = {
             "date": date,
+            "type": "expense",
             "title": title,
             "amount": amount
         };
@@ -137,10 +143,6 @@ function submitForm() {
         sendToWebhook(expenseData);
         
         // Clear form fields
-        document.getElementById('client').value = '';
-        document.getElementById('numCars').textContent = '0';
-        document.getElementById('totalAmount').textContent = '$0.00';
-        document.getElementById('carsContainer').innerHTML = '';
         document.getElementById('title').value = '';
         document.getElementById('expenseAmount').value = '';
     }
@@ -151,12 +153,13 @@ function sendToWebhook(data) {
     // The actual webhook URL will be configured in n8n
     console.log('Form data submitted:', data);
     // In a real implementation, this would make an HTTP POST request to your webhook URL
-     fetch("https://artorias.app.n8n.cloud/webhook-test/daily-detailing-form", {
-         method: 'POST',
-         headers: {
-             'Content-Type': 'application/json',
-         },
-         body: JSON.stringify(data)
-     });
+    // fetch(webhookUrl, {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(data)
+    // });
 }
+
 
