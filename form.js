@@ -78,36 +78,41 @@ function submitForm() {
         const client = document.getElementById('client').value;
         const carsContainer = document.getElementById('carsContainer');
         const carSections = carsContainer.children;
-        let totalAmount = 0;
-        
-        // Calculate total amount first
-        for (let section of carSections) {
-            const price = section.querySelector('input[type="number"]').value;
-            totalAmount += parseFloat(price) || 0;
-        }
 
-        // Create JSON object
-        const incomeData = {
-            "date": date,
-            "client": client,
-            "type": "income",
-            "cars": [],
-            "number_of_cars": carSections.length,
-            "total_amount": totalAmount.toFixed(2)
-        };
-        
+        // Initialize aggregators
+        let totalAmount = 0;
+        const counts = { Exterior: 0, Interior: 0, Both: 0, Ceramic: 0 };
+        const costs  = { Exterior: 0, Interior: 0, Both: 0, Ceramic: 0 };
+
         // Collect data from each car section
         for (let section of carSections) {
-            const carId = section.children[0].children[0].textContent.split(' ')[1];
-            const service = section.querySelector(`#service${carId}`).value;
-            const price = section.querySelector(`#price${carId}`).value;
-            
-            incomeData.cars.push({
-                "car_number": carId,
-                "service": service,
-                "price": price
-            });
+            const service = section.querySelector('select').value;
+            const priceVal = section.querySelector('input[type="number"]').value;
+            const price = parseFloat(priceVal) || 0;
+
+            if (service && counts.hasOwnProperty(service)) {
+                counts[service] += 1;
+                costs[service]  += price;
+            }
+            totalAmount += price;
         }
+
+        // Build aggregated JSON object
+        const incomeData = {
+            date: date,
+            client: client,
+            type: "income",
+            number_of_cars: carSections.length,
+            total_amount: totalAmount.toFixed(2),
+            exterior: counts.Exterior,
+            interior: counts.Interior,
+            both: counts.Both,
+            ceramic: counts.Ceramic,
+            exterior_cost: costs.Exterior.toFixed(2),
+            interior_cost: costs.Interior.toFixed(2),
+            both_cost: costs.Both.toFixed(2),
+            ceramic_cost: costs.Ceramic.toFixed(2)
+        };
         
         // Create display element
         const incomeDisplay = document.createElement('div');
@@ -115,7 +120,11 @@ function submitForm() {
         incomeDisplay.innerHTML = `
             <div>Client: ${client}</div>
             <div>Total Amount: $${totalAmount.toFixed(2)}</div>
-            <div>Cars: ${incomeData.cars.length}</div>
+            <div>Cars: ${incomeData.number_of_cars}</div>
+            <div>Exterior: ${incomeData.exterior} - $${incomeData.exterior_cost}</div>
+            <div>Interior: ${incomeData.interior} - $${incomeData.interior_cost}</div>
+            <div>Both: ${incomeData.both} - $${incomeData.both_cost}</div>
+            <div>Ceramic: ${incomeData.ceramic} - $${incomeData.ceramic_cost}</div>
         `;
         submissions.insertBefore(incomeDisplay, submissions.firstChild);
         
@@ -157,6 +166,7 @@ function submitForm() {
         document.getElementById('expenseAmount').value = '';
     }
 }
+
 
 function sendToWebhook(data) {
     // This function will be called when form is submitted
